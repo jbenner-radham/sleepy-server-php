@@ -1,5 +1,5 @@
 #define PHP_SLEEPY_EXTNAME "sleepy"
-#define PHP_SLEEPY_VERSION "0.01"
+#define PHP_SLEEPY_VERSION "0.0.1"
 
 PHP_MINIT_FUNCTION(sleepy);
 PHP_MSHUTDOWN_FUNCTION(sleepy);
