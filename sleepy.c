@@ -6,7 +6,7 @@
  
 // define the function(s) we want to add
 zend_function_entry sleepy_functions[] = {
-  PHP_FE(cthulhu, NULL)
+  PHP_FE(sleepy, NULL)
   { NULL, NULL, NULL }
 };
  
