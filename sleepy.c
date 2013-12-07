@@ -11,9 +11,31 @@
  */
 PHP_MINIT_FUNCTION(sleepy)
 {
+    //php_printf(SG(request_info).request_method);
     //if (SG(request_info).request_method != NULL)
-    //    REGISTER_STRING_CONSTANT("SLEEPY_HTTP_REQUEST", SG(request_info).request_method, CONST_CS);
+    //    REGISTER_STRING_CONSTANT("SLEEPY_HTTP_REQUEST", (char *)SG(request_info).request_method, CONST_CS | CONST_PERSISTENT);
     REGISTER_STRING_CONSTANT("SLEEPY_HELLO", "Hello world!", CONST_CS);
+
+    return SUCCESS;
+}
+
+// Request Initializer...
+PHP_RINIT_FUNCTION(sleepy)
+{
+    if (SG(request_info).request_method != NULL) {
+        REGISTER_STRING_CONSTANT("SLEEPY_HTTP_REQUEST", (char *)SG(request_info).request_method, CONST_CS | CONST_PERSISTENT);
+    }
+
+    if (SG(request_info).request_uri != NULL) {
+        REGISTER_STRING_CONSTANT("SLEEPY_HTTP_REQUEST_URI", SG(request_info).request_uri, CONST_CS | CONST_PERSISTENT);
+    }
+
+    return SUCCESS;
+}
+
+PHP_RSHUTDOWN_FUNCTION(sleepy)
+{
+    //free_zend_constant(SLEEPY_HTTP_REQUEST);
 
     return SUCCESS;
 }
@@ -38,13 +60,9 @@ zend_module_entry sleepy_module_entry = {
   STANDARD_MODULE_HEADER,
   PHP_SLEEPY_EXTNAME,
   sleepy_functions,
-
-  /**
-   * Invoke our "MINIT" function here which defines our constant(s).
-   */
   PHP_MINIT(sleepy),
   PHP_MSHUTDOWN(sleepy),
-  NULL,
+  PHP_RINIT(sleepy),
   NULL,
   NULL,
   PHP_SLEEPY_VERSION,
