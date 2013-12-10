@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #include "php.h"
 #include "SAPI.h"
 #include "zend_API.h"
@@ -34,29 +33,6 @@
  * sizeof(unsigned char) == 1
  * sizeof(unsigned int)  == 4
  * sizeof(size_t)        == 8
-=======
-#include <php.h>
-#include "php_sleepy.h"
-#include <SAPI.h>
-#include <zend_API.h>
-#include "test.c"
-
-/*
- *  #define ZEND_STRL(str)      (str), (sizeof(str)-1)
- *  #define ZEND_STRS(str)      (str), (sizeof(str))
- *
- *  Cast a value to "zend_bool" which is a typedef for "unsigned char".
- *  #define ZEND_TRUTH(x)       ((x) ? 1 : 0)
- *
- *  [Zend/zend.h]
- *  #define SUCCESS 0
- *  #define FAILURE -1  
- * 
- *  [zend_API.h]
- *  #define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }
- *  #define ZEND_NS_NAME(ns, name)          ns "\\" name
- *  #define ZEND_ME(classname, name, arg_info, flags)   ZEND_FENTRY(name, ZEND_MN(classname##_##name), arg_info, flags)
->>>>>>> 8b9608e317b405f588a06244f3ae802fbf9a52bd
  */
 
 const zend_function_entry sleepy_class_methods[] = {
@@ -89,7 +65,6 @@ PHP_MINIT_FUNCTION(sleepy)
     ce.create_object = NULL;
     ce_Sleepy = zend_register_internal_class(&ce TSRMLS_CC);
 
-<<<<<<< HEAD
     return SUCCESS;
 }
 
@@ -97,18 +72,6 @@ PHP_RINIT_FUNCTION(sleepy)
 {
     /* Declare your class constants after you register the class, duh me... */
 
-=======
-    /* Declare your class constants after you register the class, duh me... */
-    //zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("SLEEPY_URI"), 0 TSRMLS_DC);
-
-    return SUCCESS;
-}
-
-//capi_request_context *rc = (capi_request_context *) SG(server_context);
-
-PHP_RINIT_FUNCTION(sleepy)
-{
->>>>>>> 8b9608e317b405f588a06244f3ae802fbf9a52bd
     /* Request Method */
     if (SG(request_info).request_method) {
         zend_declare_class_constant_string(ce_Sleepy, ZEND_STRL("REQUEST_METHOD"), SG(request_info).request_method TSRMLS_DC);
@@ -138,8 +101,4 @@ PHP_RINIT_FUNCTION(sleepy)
     }
 
     return SUCCESS;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 8b9608e317b405f588a06244f3ae802fbf9a52bd
