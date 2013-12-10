@@ -21,8 +21,4 @@ if test "$PHP_SLEEPY" != "no"; then
     ;;
   esac
 
-<<<<<<< HEAD
 fi
-=======
-fi
->>>>>>> 8b9608e317b405f588a06244f3ae802fbf9a52bd
