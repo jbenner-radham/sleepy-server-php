@@ -10,4 +10,9 @@ PHP_RINIT_FUNCTION(sleepy);
 
 //PHP_MSHUTDOWN_FUNCTION(sleepy);
 
+<<<<<<< HEAD
 PHP_METHOD(Sleepy, test);
+=======
+//PHP_FUNCTION(sleepy);
+PHP_METHOD(Sleepy, test);
+>>>>>>> 8b9608e317b405f588a06244f3ae802fbf9a52bd
