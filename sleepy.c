@@ -1,180 +1,104 @@
-// include PHP API
-#include <SAPI.h>
-#include <php.h>
+#include "php.h"
+#include "SAPI.h"
+#include "zend_API.h"
 
 #include "php_sleepy.h"
+#include "test.c"
 
-// http://php.find-info.ru/php/016/ch21lev1sec1.html
-
-/**
- * Reference: http://www.php.net/manual/en/internals2.ze1.zendapi.php#internals2.ze1.zendapi.tab.create-const
+/*
+ * ----------------------------------
+ * RANDOM ZEND ENGINE MACRO REFERENCE
+ * ----------------------------------
+ * 
+ * #define ZEND_STRL(str)      (str), (sizeof(str)-1)
+ * #define ZEND_STRS(str)      (str), (sizeof(str))
+ *
+ * Cast a value to "zend_bool" which is a typedef for "unsigned char".
+ * #define ZEND_TRUTH(x)       ((x) ? 1 : 0)
+ *
+ * [Zend/zend.h]
+ * #define SUCCESS 0
+ * #define FAILURE -1  
+ * 
+ * [zend_API.h]
+ * #define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }
+ * #define ZEND_NS_NAME(ns, name)          ns "\\" name
+ * #define ZEND_ME(classname, name, arg_info, flags)   ZEND_FENTRY(name, ZEND_MN(classname##_##name), arg_info, flags)
  */
+
+/*
+ * --------------
+ * RANDOM C NOTES
+ * --------------
+ * sizeof(unsigned char) == 1
+ * sizeof(unsigned int)  == 4
+ * sizeof(size_t)        == 8
+ */
+
+const zend_function_entry sleepy_class_methods[] = {
+    PHP_ME(Sleepy, test, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    {NULL, NULL, NULL}
+};
+
+zend_module_entry sleepy_module_entry = {
+    STANDARD_MODULE_HEADER,
+    PHP_SLEEPY_EXTNAME,
+    sleepy_class_methods,      /* Extension Function Entries         */
+    PHP_MINIT(sleepy),         /* MINIT     - Module Initialization  */
+    NULL,                      /* MSHUTDOWN - Module Shutdown        */
+    PHP_RINIT(sleepy),         /* RINIT     - Request Initialization */
+    NULL,                      /* RSHUTDOWN - Request Shutdown       */
+    NULL,                      /* MINFO     - Module Information     */
+    NO_VERSION_YET,            /* Extension Version Number           */
+    STANDARD_MODULE_PROPERTIES
+};
+
+ZEND_GET_MODULE(sleepy)
+
+zend_class_entry *ce_Sleepy;
+
 PHP_MINIT_FUNCTION(sleepy)
 {
-    //php_printf(SG(request_info).request_method);
-    //if (SG(request_info).request_method != NULL)
-    //    REGISTER_STRING_CONSTANT("SLEEPY_HTTP_REQUEST", (char *)SG(request_info).request_method, CONST_CS | CONST_PERSISTENT);
-    REGISTER_STRING_CONSTANT("SLEEPY_HELLO", "Hello world!", CONST_CS);
+    zend_class_entry ce;
+
+    INIT_CLASS_ENTRY(ce, "Sleepy", sleepy_class_methods);
+    ce.create_object = NULL;
+    ce_Sleepy = zend_register_internal_class(&ce TSRMLS_CC);
 
     return SUCCESS;
 }
 
-// Request Initializer...
 PHP_RINIT_FUNCTION(sleepy)
 {
-    if (SG(request_info).request_method != NULL) {
-        REGISTER_STRING_CONSTANT("SLEEPY_HTTP_REQUEST", (char *)SG(request_info).request_method, CONST_CS | CONST_PERSISTENT);
+    /* Declare your class constants after you register the class, duh me... */
+
+    /* Request Method */
+    if (SG(request_info).request_method) {
+        zend_declare_class_constant_string(ce_Sleepy, ZEND_STRL("REQUEST_METHOD"), SG(request_info).request_method TSRMLS_DC);
+    } else {
+        zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("REQUEST_METHOD"), 0 TSRMLS_DC);
     }
-
-    if (SG(request_info).request_uri != NULL) {
-        REGISTER_STRING_CONSTANT("SLEEPY_HTTP_REQUEST_URI", SG(request_info).request_uri, CONST_CS | CONST_PERSISTENT);
-    }
-
-    return SUCCESS;
-}
-
-PHP_RSHUTDOWN_FUNCTION(sleepy)
-{
-    //free_zend_constant(SLEEPY_HTTP_REQUEST);
-
-    return SUCCESS;
-}
-
-PHP_MSHUTDOWN_FUNCTION(sleepy)
-{
-    return SUCCESS;
-}
-
-// define the function(s) we want to add
-zend_function_entry sleepy_functions[] = {
-  PHP_FE(sleepy, NULL)
-  { NULL, NULL, NULL }
-};
- 
-// http://php.net/manual/en/internals2.structure.modstruct.php
-
-// "sleepy_functions" refers to the struct defined above
-// we'll be filling in more of this later: you can use this to specify
-// globals, php.ini info, startup and teardown functions, etc.
-zend_module_entry sleepy_module_entry = {
-  STANDARD_MODULE_HEADER,
-  PHP_SLEEPY_EXTNAME,
-  sleepy_functions,
-  PHP_MINIT(sleepy),
-  PHP_MSHUTDOWN(sleepy),
-  PHP_RINIT(sleepy),
-  NULL,
-  NULL,
-  PHP_SLEEPY_VERSION,
-  STANDARD_MODULE_PROPERTIES
-};
- 
-// install module
-ZEND_GET_MODULE(sleepy)
- 
-PHP_FUNCTION(sleepy) {
-
-/**
- * ---------------------------
- * FROM PHP-5.4.22/main/SAPI.h
- * ---------------------------
- */
-//  typedef struct {
-//        const char *request_method;
-//        char *query_string;
-//        char *post_data, *raw_post_data;
-//        char *cookie_data;
-//        long content_length;
-//        uint post_data_length, raw_post_data_length;
-//
-//        char *path_translated;
-//        char *request_uri;
-//
-//        const char *content_type;
-//
-//        zend_bool headers_only;
-//        zend_bool no_headers;
-//        zend_bool headers_read;
-//
-//        sapi_post_entry *post_entry;
-//
-//        char *content_type_dup;
-//
-//       /* for HTTP authentication */
-//        char *auth_user;
-//        char *auth_password;
-//        char *auth_digest;
-//
-//        /* this is necessary for the CGI SAPI module */
-//        char *argv0;
-//
-//        char *current_user;
-//        int current_user_length;
-//
-//        /* this is necessary for CLI module */
-//        int argc;
-//        char **argv;
-//        int proto_num;
-//  } sapi_request_info;
- 
-
-
-    // The SAPI module is cli
-    //php_printf("The SAPI module is %s\n", sapi_module.name);
-
-    // "/htdocs/cthulhu.php" <- Returns the symlink relative path... interesting.
-    //php_printf("The SAPI module is %s\n", SG(request_info).request_uri);
-
-/**
- * Z_STRLEN_P is not a function but a macro to the string length value stored within the variable structure, so they's no unnecessary computation.
- * 
- * zend_operators.h:
- *
- * #define Z_STRLEN(zval) (zval).value.str.len
- * ...
- * #define Z_STRLEN_P(zval_p) Z_STRLEN(*zval_p)
- */
-
-/**
- * =============================================================
- * FROM http://us1.php.net/manual/en/internals2.ze1.zendapi.php
- * Because there's no Zend Engine 2 API docs ugh... :(
- * =============================================================
- * RETURN_STRING(string, duplicate)  Returns a string. The duplicate flag indicates whether the string should be duplicated using estrdup().
- * RETURN_STRINGL(string, length, duplicate)  Returns a string of the specified length; otherwise, behaves like RETURN_STRING. This macro is faster and binary-safe, however.
- */
-
- // http://www.php.net/manual/en/internals2.variables.intro.php
-
-    //php_printf("%s\n", SG(request_info).request_method);
-
-    const char *request_method = SG(request_info).request_method;
-    //MAKE_STD_ZVAL(request_method);
-
-    //request_method = SG(request_info).request_method;
-
-    //if (SG(request_info).request_method == NULL) {
-    //    RETURN_FALSE;
-    //}
-
-    /**
-     * Not sure if they want "strlen() + 1" for the length or just vanilla
-     * "strlen()", none of the variadic macros like this e.g. Z_STRINGL,
-     * Z_STRINGL_P, Z_STRINGL_PP. Maybe I should just use "RETURN_STRING" instead even
-     * though it's listed as slower...
-     */
-    //size_t len = strlen(SG(request_info).request_method);
-    //RETURN_STRINGL(SG(request_info).request_method, len, 1);
     
-     /**
-      * -------
-      * WORKING
-      * -------
-      * RETURN_STRING(SG(request_info).query_string, 1);
-      * RETURN_STRING(SG(request_info).request_method, 1);
-      */
-      //RETURN_STRING(request_method, 1);
-    //RETURN_STRING(SG(request_info).request_method, 1);
-    RETURN_STRING(request_method, 1);
+    /* Request URI */
+    if (SG(request_info).request_uri) {
+        zend_declare_class_constant_string(ce_Sleepy, ZEND_STRL("REQUEST_URI"), SG(request_info).request_uri TSRMLS_DC);
+    } else {
+        zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("REQUEST_URI"), 0 TSRMLS_DC);
+    }
 
+    /* Query String */
+    if (SG(request_info).query_string) {
+        zend_declare_class_constant_string(ce_Sleepy, ZEND_STRL("QUERY_STRING"), SG(request_info).query_string TSRMLS_DC);
+    } else {
+        zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("QUERY_STRING"), 0 TSRMLS_DC);
+    }
+
+    /* Response Code */
+    if (SG(sapi_headers).http_response_code) {
+        zend_declare_class_constant_long(ce_Sleepy, ZEND_STRL("RESPONSE_CODE"), SG(sapi_headers).http_response_code TSRMLS_DC);
+    } else {
+        zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("RESPONSE_CODE"), 0 TSRMLS_DC);
+    }
+
+    return SUCCESS;
 }
