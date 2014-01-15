@@ -2,6 +2,11 @@ PHP_METHOD(Sleepy, setStatusCode)
 {
     long status_code;
 
+    // http://www.php.net/manual/en/internals2.variables.intro.php
+
+    // http://lxr.php.net/xref/PHP_5_5/ext/standard/head.c#290
+    // This should get changed into class property at some point in the future...
+
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_DC, "l", &status_code) == FAILURE) {
         RETURN_NULL();
     }
