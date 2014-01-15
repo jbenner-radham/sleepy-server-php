@@ -5,6 +5,10 @@
 
 //extern zend_module_entry sleepy_module_entry;
 
+#ifdef ZTS
+#include "TSRM.h"
+#endif
+
 PHP_MINIT_FUNCTION(sleepy);
 PHP_RINIT_FUNCTION(sleepy);
 

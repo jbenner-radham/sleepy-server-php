@@ -1,3 +1,23 @@
+/*
+char *ip_address;
+char *uri;
+
+ip_address = sapi_getenv("HTTP_X_FORWARDED_FOR", 20 TSRMLS_CC);
+if (ip_address == NULL) {
+  ip_address = sapi_getenv("REMOTE_ADDR", 11 TSRMLS_CC);
+  if (ip_address == NULL) {
+    ip_address = "no_ip_address";
+  }
+}
+
+uri = sapi_getenv("REQUEST_URI", 11 TSRMLS_CC);
+if (uri == NULL) {
+  uri = "no_uri";
+}
+
+php_syslog(LOG_NOTICE, "%.500s [ip:%s][uri:%s]", log_message, ip_address, uri);
+ */
+
 PHP_METHOD(Sleepy, test)
 {
     /* 
@@ -7,6 +27,7 @@ PHP_METHOD(Sleepy, test)
      * if it is not invoked via the callee PHP script than we need to do it 
      * manually.
      */
+    
     zval *array_ptr = NULL;
     
     ALLOC_ZVAL(array_ptr);
@@ -22,10 +43,14 @@ PHP_METHOD(Sleepy, test)
     if (sapi_module.register_server_variables) {
         sapi_module.register_server_variables(array_ptr TSRMLS_CC);
     }
+    
     /* 
      * End super hacky server super global invocation from 
      * [main/php_variables.c - php_register_server_variables()]
      */
+
+    //zend_auto_global_disable_jit("_SERVER", sizeof("_SERVER")-1 TSRMLS_DC);
+    //zend_activate_auto_globals(TSRMLS_DC);
 
     zend_llist_position pos;
     sapi_header_struct* h;
@@ -47,6 +72,26 @@ PHP_METHOD(Sleepy, test)
     } else {
         php_printf("No user agent found :(\n");
     }
+
+    /* Setting of status code from (which has a lot of good stuff...)
+     * [main/SAPI.c - sapi_update_response_code()
+     * sapi_update_response_code(int ncode TSRMLS_DC)
+     */
+    //int ncode = 202;
+
+    /* if the status code did not change, we do not want
+       to change the status line, and no need to change the code */
+    //if (SG(sapi_headers).http_response_code == ncode) {
+    //    return;
+    //}
+    //if (SG(sapi_headers).http_status_line) {
+    //    efree(SG(sapi_headers).http_status_line);
+    //    SG(sapi_headers).http_status_line = NULL;
+    //}
+    //SG(sapi_headers).http_response_code = ncode;
+
+
+    //if ( zend_hash_exists(HASH_OF(PG(http_globals)[TRACK_VARS_SERVER]), ZEND_STRS("HTTP_USER_AGENT")) ) {
 
     /* 
      * The Z_STRLEN & Z_STRVAL variadic macros expand into the command below. For the "_PP" variants they would presumably prepend "**" to said non-expanded macros.

@@ -1,8 +1,14 @@
 #include "php.h"
-#include "SAPI.h"
+#include "main/SAPI.h"
+#include "ext/standard/info.h"
+#include "ext/standard/php_string.h"
 #include "zend_API.h"
 
+#include "zend_compile.h"
+
 #include "php_sleepy.h"
+#include "sleepy/header.c"
+#include "sleepy/setStatusCode.c"
 #include "test.c"
 
 /*
@@ -35,8 +41,10 @@
  * sizeof(size_t)        == 8
  */
 
-const zend_function_entry sleepy_class_methods[] = {
-    PHP_ME(Sleepy, test, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+static zend_function_entry sleepy_class_methods[] = {
+    PHP_ME(Sleepy, test,          NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sleepy, setJsonHeader, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sleepy, setStatusCode, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     {NULL, NULL, NULL}
 };
 
@@ -63,7 +71,7 @@ PHP_MINIT_FUNCTION(sleepy)
 
     INIT_CLASS_ENTRY(ce, "Sleepy", sleepy_class_methods);
     ce.create_object = NULL;
-    ce_Sleepy = zend_register_internal_class(&ce TSRMLS_CC);
+    ce_Sleepy = zend_register_internal_class(&ce TSRMLS_DC);
 
     return SUCCESS;
 }
@@ -78,9 +86,10 @@ PHP_RINIT_FUNCTION(sleepy)
     } else {
         zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("REQUEST_METHOD"), 0 TSRMLS_DC);
     }
-    
+
     /* Request URI */
     if (SG(request_info).request_uri) {
+        //zend_declare_class_constant_string(ce_Sleepy, ZEND_STRL("REQUEST_URI"), sapi_getenv("REQUEST_URI", 11 TSRMLS_DC) TSRMLS_DC);
         zend_declare_class_constant_string(ce_Sleepy, ZEND_STRL("REQUEST_URI"), SG(request_info).request_uri TSRMLS_DC);
     } else {
         zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("REQUEST_URI"), 0 TSRMLS_DC);

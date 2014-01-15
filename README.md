@@ -10,3 +10,13 @@ Sleepy::REQUEST_METHOD;
 Sleepy::REQUEST_URI;
 Sleepy::QUERY_STRING;
 ```
+
+Building
+--------
+```
+phpize
+./configure
+make
+make install
+```
+And an occasional `make clean` if you're rebuilding a lot.
