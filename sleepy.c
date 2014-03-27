@@ -10,9 +10,18 @@
 #include "zend_compile.h"
 
 #include "php_sleepy.h"
-#include "sleepy/header.c"
+#include "sleepy/_ext/sleepy_set_header.c"
+
+// Class Methods
+#include "sleepy/createJsonResponse.c"
+#include "sleepy/encodeJson.c"
+#include "sleepy/setHeader.c"
 #include "sleepy/setStatusCode.c"
 #include "test.c"
+
+/**
+ * @todo Make the methods actually have a return value!
+ */
 
 /*
  * ----------------------------------
@@ -45,10 +54,11 @@
  */
 
 static zend_function_entry sleepy_class_methods[] = {
-    PHP_ME(Sleepy, test,          NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Sleepy, setJsonHeader, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Sleepy, setStatusCode, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(Sleepy, jsony,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sleepy, test,               NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sleepy, createJsonResponse, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sleepy, encodeJson,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sleepy, setJsonHeader,      NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sleepy, setStatusCode,      NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     {NULL, NULL, NULL}
 };
 
@@ -111,6 +121,55 @@ PHP_RINIT_FUNCTION(sleepy)
         zend_declare_class_constant_long(ce_Sleepy, ZEND_STRL("RESPONSE_CODE"), SG(sapi_headers).http_response_code TSRMLS_DC);
     } else {
         zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("RESPONSE_CODE"), 0 TSRMLS_DC);
+    }
+
+
+    /*
+     * From: [main/php_variables.c - php_register_server_variables()]
+     *
+     * We need to have the $_SERVER superglobals initialized to read them and
+     * if it is not invoked via the callee PHP script than we need to do it
+     * manually.
+     */
+
+    zval *array_ptr = NULL;
+
+    ALLOC_ZVAL(array_ptr);
+    array_init(array_ptr);
+    INIT_PZVAL(array_ptr);
+
+    if (PG(http_globals)[TRACK_VARS_SERVER]) {
+            zval_ptr_dtor(&PG(http_globals)[TRACK_VARS_SERVER]);
+    }
+
+    PG(http_globals)[TRACK_VARS_SERVER] = array_ptr;
+
+    if (sapi_module.register_server_variables) {
+        sapi_module.register_server_variables(array_ptr TSRMLS_CC);
+    }
+
+    /*
+     * End super hacky server super global invocation from
+     * [main/php_variables.c - php_register_server_variables()]
+     */
+
+    /* HTTP Accept */
+
+    zval **http_accept;
+
+    /**
+     * @todo Look at the following link later!
+     * @see  http://stackoverflow.com/questions/10275462/a-confuse-about-post-or-get-variables-in-php-c-extensions
+     */
+
+    if ( zend_hash_exists(HASH_OF(PG(http_globals)[TRACK_VARS_SERVER]), ZEND_STRS("HTTP_ACCEPT")) ) {
+        zend_declare_class_constant_long(
+            ce_Sleepy,
+            ZEND_STRL("HTTP_ACCEPT"),
+            zend_hash_find(HASH_OF(PG(http_globals)[TRACK_VARS_SERVER]), ZEND_STRS("HTTP_ACCEPT"), (void **)&http_accept) TSRMLS_DC
+        );
+    } else {
+        zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("HTTP_ACCEPT"), 0 TSRMLS_DC);
     }
 
     return SUCCESS;
