@@ -161,13 +161,25 @@ PHP_RINIT_FUNCTION(sleepy)
      * @todo Look at the following link later!
      * @see  http://stackoverflow.com/questions/10275462/a-confuse-about-post-or-get-variables-in-php-c-extensions
      */
-
     if ( zend_hash_exists(HASH_OF(PG(http_globals)[TRACK_VARS_SERVER]), ZEND_STRS("HTTP_ACCEPT")) ) {
-        zend_declare_class_constant_long(
-            ce_Sleepy,
-            ZEND_STRL("HTTP_ACCEPT"),
-            zend_hash_find(HASH_OF(PG(http_globals)[TRACK_VARS_SERVER]), ZEND_STRS("HTTP_ACCEPT"), (void **)&http_accept) TSRMLS_DC
+        //zend_hash_find(HASH_OF(PG(http_globals)[TRACK_VARS_SERVER]), ZEND_STRS("HTTP_ACCEPT"), (void **)&http_accept);
+        zend_hash_find(
+            HASH_OF(PG(http_globals)[TRACK_VARS_SERVER]),
+            ZEND_STRS("HTTP_ACCEPT"),
+            (void **)&http_accept
         );
+        /**
+         * Both of these two are functionally equivalent, deciding which is more semantic...
+         *
+         * 1) Literal struct access
+         *
+         *     (**http_accept).value.str.val
+         *
+         * 2) Variadic macro
+         *
+         *     Z_STRVAL_PP(http_accept)
+         */
+        zend_declare_class_constant_string(ce_Sleepy, ZEND_STRL("HTTP_ACCEPT"), (**http_accept).value.str.val TSRMLS_DC);
     } else {
         zend_declare_class_constant_bool(ce_Sleepy, ZEND_STRL("HTTP_ACCEPT"), 0 TSRMLS_DC);
     }
