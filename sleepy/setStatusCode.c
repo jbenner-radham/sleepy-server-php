@@ -19,6 +19,7 @@ PHP_METHOD(Sleepy, setStatusCode)
     if (SG(sapi_headers).http_response_code == status_code) {
         return;
     }
+
     if (SG(sapi_headers).http_status_line) {
         efree(SG(sapi_headers).http_status_line);
         SG(sapi_headers).http_status_line = NULL;

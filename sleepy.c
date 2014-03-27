@@ -1,7 +1,10 @@
+#include "stdbool.h"
+
 #include "php.h"
 #include "main/SAPI.h"
 #include "ext/standard/info.h"
 #include "ext/standard/php_string.h"
+#include "ext/json/php_json.h"
 #include "zend_API.h"
 
 #include "zend_compile.h"
@@ -15,7 +18,7 @@
  * ----------------------------------
  * RANDOM ZEND ENGINE MACRO REFERENCE
  * ----------------------------------
- * 
+ *
  * #define ZEND_STRL(str)      (str), (sizeof(str)-1)
  * #define ZEND_STRS(str)      (str), (sizeof(str))
  *
@@ -24,8 +27,8 @@
  *
  * [Zend/zend.h]
  * #define SUCCESS 0
- * #define FAILURE -1  
- * 
+ * #define FAILURE -1
+ *
  * [zend_API.h]
  * #define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }
  * #define ZEND_NS_NAME(ns, name)          ns "\\" name
@@ -45,6 +48,7 @@ static zend_function_entry sleepy_class_methods[] = {
     PHP_ME(Sleepy, test,          NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sleepy, setJsonHeader, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sleepy, setStatusCode, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sleepy, jsony,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     {NULL, NULL, NULL}
 };
 
@@ -57,7 +61,7 @@ zend_module_entry sleepy_module_entry = {
     PHP_RINIT(sleepy),         /* RINIT     - Request Initialization */
     NULL,                      /* RSHUTDOWN - Request Shutdown       */
     NULL,                      /* MINFO     - Module Information     */
-    NO_VERSION_YET,            /* Extension Version Number           */
+    PHP_SLEEPY_VERSION,        /* Extension Version Number           */
     STANDARD_MODULE_PROPERTIES
 };
 

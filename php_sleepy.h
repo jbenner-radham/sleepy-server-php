@@ -9,9 +9,13 @@
 #include "TSRM.h"
 #endif
 
+#define SLEEPY_METHOD(method) \
+    PHP_METHOD(Sleepy, method)                                             \
+
 PHP_MINIT_FUNCTION(sleepy);
 PHP_RINIT_FUNCTION(sleepy);
 
 //PHP_MSHUTDOWN_FUNCTION(sleepy);
 
-PHP_METHOD(Sleepy, test);
+//PHP_METHOD(Sleepy, test);
+//PHP_METHOD(Sleepy, jsony);
