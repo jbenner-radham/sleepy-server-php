@@ -4,6 +4,7 @@
 #include "main/SAPI.h"
 #include "ext/standard/info.h"
 #include "ext/standard/php_string.h"
+#include "ext/standard/php_var.h"     /* php_var_dump() */
 #include "ext/json/php_json.h"
 #include "zend_API.h"
 
@@ -14,6 +15,7 @@
 
 // Class Methods
 #include "sleepy/createJsonResponse.c"
+#include "sleepy/negotiateContent.c"
 #include "sleepy/encodeJson.c"
 #include "sleepy/setHeader.c"
 #include "sleepy/setStatusCode.c"
@@ -44,7 +46,7 @@
  * #define ZEND_ME(classname, name, arg_info, flags)   ZEND_FENTRY(name, ZEND_MN(classname##_##name), arg_info, flags)
  */
 
-/*
+/**
  * --------------
  * RANDOM C NOTES
  * --------------
@@ -53,10 +55,17 @@
  * sizeof(size_t)        == 8
  */
 
+/*
+ZEND_BEGIN_ARG_INFO_EX(zee_arg_infos, 0, 0, 0)
+    ZEND_ARG_ARRAY_INFO(0, accept_array, 0)
+ZEND_END_ARG_INFO();
+*/
+
 static zend_function_entry sleepy_class_methods[] = {
     PHP_ME(Sleepy, test,               NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sleepy, createJsonResponse, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sleepy, encodeJson,         NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(Sleepy, negotiateContent,   NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sleepy, setJsonHeader,      NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(Sleepy, setStatusCode,      NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     {NULL, NULL, NULL}
