@@ -10,7 +10,6 @@ SLEEPY_METHOD(negotiateContent)
 
     /*ZVAL_EMPTY_STRING(http_accept);*/
     MAKE_STD_ZVAL(http_accept);
-    ZVAL_EMPTY_STRING(http_accept);
     MAKE_STD_ZVAL(delim);
 
 
@@ -18,11 +17,14 @@ SLEEPY_METHOD(negotiateContent)
      * This methodology is utilized in "main/php_variables.c" in the PHP source
      * and it saved my sanity here after quite a few hours...
      */
-    zval *accept_array = NULL;
+    zval *accept_array; /* I don't believe I really need to assign this to null initially but we'll see. */
 
-    ALLOC_ZVAL(accept_array);
+    /**
+     * `ALLOC_INIT_ZVAL()` is a variadic macro that just chains
+     * `ALLOC_ZVAL()` and `INIT_PZVAL()` together FYI.
+     */
+    ALLOC_INIT_ZVAL(accept_array);
     array_init(accept_array);
-    INIT_PZVAL(accept_array);
 
     /**
      * 3rd argv is "make a copy of string"

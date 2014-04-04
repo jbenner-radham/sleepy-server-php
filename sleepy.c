@@ -22,6 +22,11 @@
 #include "test.c"
 
 /**
+ * OK, `phpize --clean` is awesomesauce!
+ */
+
+
+/**
  * @todo Make the methods actually have a return value!
  */
 
