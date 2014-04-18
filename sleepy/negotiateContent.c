@@ -4,6 +4,9 @@
  * @see http://lxr.php.net/xref/PHP_5_5/ext/standard/php_string.h#141
  */
 
+
+ // Accept   text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+
 SLEEPY_METHOD(negotiateContent)
 {
     zval *http_accept, *delim;
